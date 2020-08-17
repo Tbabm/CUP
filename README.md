@@ -1,8 +1,8 @@
-# CUP: JIT Comment Updater
+# CUP: JIT Comment UPdater
 ## Directory Structure
 - baselines: the implementation of nnupdater and scripts for running baselines
 - models: neural models
-- scripts: the scripts for conductin experiments
+- scripts: the scripts for conducting experiments
 
 ## Prepare Requirements
 - Java 8
@@ -16,6 +16,11 @@ pip install git+https://github.com/Maluuba/nlg-eval.git@master
 # set the data_path
 nlg-eval --setup ${data_path}
 ```
+
+## Download Dataset
+- Our dataset, trained model and archived results can be downloaded from [here](https://drive.google.com/drive/folders/1WLkg1xvfxAwzFR6NWbEqZrTvr7QgQOkP?usp=sharing)
+- Another archive of this project can be found at https://tinyurl.com/jitcomment
+- By default, we store the dataset in `../dataset`
 
 ## Train
 ```bash
@@ -31,6 +36,8 @@ cd scripts
 ```
 
 ## Build Vocab Yourself
+You can also build the vocabularies by yourself instead of using the one provided with our dataset.
+
 ```bash
 # download fastText pre-trained model
 cd ../dataset
@@ -42,7 +49,14 @@ cd scripts
 ```
 
 ## Run Baselines
+- Clone FracoUpdater:
 ```bash
+# clone FracoUpdater
+git clone https://github.com/Tbabm/FracoUpdater
+```
+- Install FracoUpdater's dependencies according to its [README](https://github.com/Tbabm/FracoUpdater/blob/master/README.md)
+- Run
+```
 python -m baselines.run_baselines run_all_baselines
 ```
 
