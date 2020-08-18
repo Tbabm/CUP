@@ -122,7 +122,7 @@ class LossReporter(object):
     def report(self, epoch, iter):
         train_time = time.time() - self._train_begin_time
         spend_time = time.time() - self._begin_time
-        logging.info('epoch %d, iter %d, avg. loss %.2f, avg. ppl %.2f ' \
+        logging.info('epoch %d, iter %d, avg. loss %.6f, avg. ppl %.6f ' \
                      'cum. examples %d, speed %.2f words/sec, time elapsed %.2f sec'
                      % (epoch, iter, self.avg_loss_per_example, self.avg_ppl,
                         self._cum_examples, self.report_tgt_words / train_time, spend_time))
@@ -134,7 +134,7 @@ class LossReporter(object):
             self.tf_logger.scalar_dict_summary(tf_info, iter)
 
     def report_cum(self, epoch, iter):
-        logging.info('epoch %d, iter %d, cum. loss %.2f, cum. ppl %.2f cum. examples %d'
+        logging.info('epoch %d, iter %d, cum. loss %.6f, cum. ppl %.6f cum. examples %d'
                      % (epoch, iter, self.avg_cum_loss_per_example, self.avg_cum_ppl, self._cum_examples))
         if self.tf_logger:
             tf_info = {
