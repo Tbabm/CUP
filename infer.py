@@ -23,6 +23,7 @@ import logging
 from tqdm import tqdm
 from docopt import docopt
 from dataset import Dataset, Example
+from models.beam import Hypothesis
 from utils.common import get_attr_by_name, set_reproducibility
 from train import Procedure, List
 
@@ -62,12 +63,13 @@ class Infer(Procedure):
             self._model.train()
         return hypos
 
-    def infer(self):
+    def infer(self) -> List[List[Hypothesis]]:
         test_set = Dataset.create_from_file(self._args['TEST_SET_FILE'])
         self._init_model()
         hypos = self.beam_search(test_set)
         with open(self._args['OUTPUT_FILE'], 'w') as f:
             json.dump(hypos, f)
+        return hypos
 
     def infer_one(self, code_change_seq: List[List[str]], src_desc_tokens: List[str],
                   ExampleClass: Callable = Example):

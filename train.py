@@ -165,12 +165,13 @@ class Procedure(ABC):
 
 
 class Trainer(Procedure):
-    def __init__(self, args: dict):
+    def __init__(self, args: dict, tf_log: bool = True):
         super(Trainer, self).__init__(args)
         self._device = None
         self._cur_patience = 0
         self._cur_trail = 0
         self._hist_valid_scores = []
+        self.tf_logger = TFLogger(self._args['--log-dir']) if tf_log else None
 
     @property
     def _train_batch_size(self):
@@ -259,29 +260,34 @@ class Trainer(Procedure):
         for param_group in self._optimizer.param_groups:
             param_group['lr'] = lr
 
-    def validate(self, train_iter, dev_set, loss_reporter):
-        logging.info('begin validation ...')
-
+    def _validate(self, dev_set):
         was_training = self._model.training
         self._model.eval()
 
         cum_loss = 0
         cum_tgt_words = 0
         with torch.no_grad():
-            for batch in dev_set.batch_iter(self._valid_batch_size, shuffle=False):
+            for batch in dev_set.train_batch_iter(self._valid_batch_size, shuffle=False):
                 batch_loss = self._model(batch).sum()
                 cum_loss += batch_loss.item()
                 cum_tgt_words += batch.tgt_words_num
             dev_ppl = np.exp(cum_loss / cum_tgt_words)
         # negative: the larger the better
         valid_metric = -dev_ppl
-        loss_reporter.report_valid(train_iter, dev_ppl)
-
-        is_better = len(self._hist_valid_scores) == 0 or valid_metric > max(self._hist_valid_scores)
-        self._hist_valid_scores.append(valid_metric)
 
         if was_training:
             self._model.train()
+
+        return valid_metric
+
+    def validate(self, train_iter, dev_set, loss_reporter):
+        logging.info('begin validation ...')
+
+        valid_metric = self._validate(dev_set)
+        loss_reporter.report_valid(train_iter, valid_metric)
+
+        is_better = len(self._hist_valid_scores) == 0 or valid_metric > max(self._hist_valid_scores)
+        self._hist_valid_scores.append(valid_metric)
 
         return is_better
 
@@ -313,12 +319,11 @@ class Trainer(Procedure):
         self._init_model()
 
         epoch = train_iter = 0
-        tf_logger = TFLogger(self._args['--log-dir'])
-        loss_reporter = LossReporter(tf_logger)
+        loss_reporter = LossReporter(self.tf_logger)
         logging.info("Start training")
         while True:
             epoch += 1
-            for batch in train_set.batch_iter(batch_size=self._train_batch_size, shuffle=True):
+            for batch in train_set.train_batch_iter(batch_size=self._train_batch_size, shuffle=True):
                 train_iter += 1
                 batch_loss_val = self.train_a_batch(batch)
                 # tgt_words_num_to_predict = sum(len(s[1:]) for s in tgt_sents)  # omitting leading `<s>`

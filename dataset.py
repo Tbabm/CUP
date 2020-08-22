@@ -329,7 +329,7 @@ class Dataset(object):
         for e in self.examples:
             yield e.get_src_desc_tokens()
 
-    def batch_iter(self, batch_size: int, shuffle: bool) -> Batch:
+    def _batch_iter(self, batch_size: int, shuffle: bool, sort_by_length: bool) -> Batch:
         batch_num = math.ceil(len(self) / batch_size)
         index_array = list(range(len(self)))
 
@@ -340,5 +340,14 @@ class Dataset(object):
             indices = index_array[i * batch_size: (i + 1) * batch_size]
             examples = [self[idx] for idx in indices]
 
-            examples = sorted(examples, key=lambda e: len(e.src_tokens), reverse=True)
+            if sort_by_length:
+                examples = sorted(examples, key=lambda e: len(e.src_tokens), reverse=True)
             yield Batch(examples)
+
+    def train_batch_iter(self, batch_size: int, shuffle: bool) -> Batch:
+        for batch in self._batch_iter(batch_size, shuffle=shuffle, sort_by_length=True):
+            yield batch
+
+    def infer_batch_iter(self, batch_size):
+        for batch in self._batch_iter(batch_size, shuffle=False, sort_by_length=False):
+            yield batch
