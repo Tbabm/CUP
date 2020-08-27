@@ -11,7 +11,7 @@ Options:
     --metrics=<arg...>          metrics to calculate [default: accuracy,recall,distance,nlg]
     --eval-class=<str>          the class used to evaluate [default: Evaluator]
 """
-
+import json
 import logging
 import stanfordnlp
 from utils.common import *
@@ -129,15 +129,15 @@ class NLGMetrics(BaseMetric):
 
     @staticmethod
     def prepare_sent(tokens: List[str]) -> str:
-        return " ".join(tokens)
+        return recover_desc(tokens)
 
     def eval(self, hypos: Iterable[List[List[str]]], references: Iterable[List[str]],
              src_references: Iterable[List[str]], *args, **kwargs) -> dict:
         # List[str]
-        first_hypos = [" ".join(hypo_list[0]) for hypo_list in hypos]
-        src_ref_strs = [" ".join(src_ref) for src_ref in src_references]
+        first_hypos = [self.prepare_sent(hypo_list[0]) for hypo_list in hypos]
+        src_ref_strs = [self.prepare_sent(src_ref) for src_ref in src_references]
         # List[List[str]]
-        references_lists = [[" ".join(ref) for ref in references]]
+        references_lists = [[self.prepare_sent(ref) for ref in references]]
         # distinct
         metrics_dict = self.nlgeval.compute_metrics(references_lists, first_hypos)
         # relative improve
