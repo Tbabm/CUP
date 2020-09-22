@@ -75,3 +75,17 @@ python -m tools dump_all_readables
 ```
 
 readable files can be found in results
+
+
+## Reference
+If you use this code, please consider citing our paper
+
+```
+@inproceedings{liu2020automating,
+  title={Automating Just-In-Time Comment Updating},
+  author={Liu, Zhongxin and Xia, Xin and Yan, Meng and Li, Shanping},
+  booktitle={Proceedings of the 35th IEEE/ACM International Conference on Automated Software Engineering},
+  pages={713--725},
+  year={2020}
+}
+```
