@@ -88,7 +88,7 @@ class Beam(BaseBeam):
         """
         vocab_size = scores.size(-1)
         topk_scores, topk_positions = torch.topk(scores.view(-1), k, sorted=True)
-        hypo_ids = topk_positions / vocab_size
+        hypo_ids = topk_positions // vocab_size
         word_ids = topk_positions % vocab_size
         return topk_scores, hypo_ids, word_ids
 
