@@ -76,6 +76,11 @@ python -m tools dump_all_readables
 
 readable files can be found in results
 
+## MISC
+### Scripts for Constructing Edit Sequences
+- See `utils.edit.construct_diff_sequence_with_con` for more information.
+- To construct an edit sequence from two code snippets, see `tests.utils.test_edit.test_construct_diff_sequence_with_con` for reference.
+
 
 ## Reference
 If you use this code, please consider citing our paper
